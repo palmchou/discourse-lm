@@ -16,6 +16,8 @@
 - `src/discourse_lm/notebooklm_adapter.py`: `notebooklm-py` import fallback and notebook/source creation.
 - `src/discourse_lm/pipeline.py`: end-to-end orchestration.
 - `src/discourse_lm/cli.py`: CLI entrypoint.
+- `skills/discourse-lm/SKILL.md`: installable OpenClaw/Codex skill definition.
+- `skills/discourse-lm/scripts/run_discourse_lm.sh`: skill wrapper for invoking the project CLI.
 
 ## Requirements
 
@@ -29,6 +31,29 @@
 cd /Users/palm/Projects/discourse-lm
 python3 -m pip install -e .[dev]
 ```
+
+## OpenClaw Skill Install
+
+This repository includes an installable skill at `skills/discourse-lm/`.
+
+To use it with OpenClaw or Codex-style local skills:
+
+```bash
+python3 -m pip install -e /Users/palm/Projects/discourse-lm
+mkdir -p ~/.codex/skills
+ln -s /Users/palm/Projects/discourse-lm/skills/discourse-lm ~/.codex/skills/discourse-lm
+```
+
+If your OpenClaw setup uses a different skills directory, copy or symlink `skills/discourse-lm/` there instead.
+
+The skill uses the bundled wrapper at `skills/discourse-lm/scripts/run_discourse_lm.sh`, which prefers the checked-out repository source tree and falls back to the installed `discourse-lm` CLI.
+
+Once installed, the skill can be used to:
+
+- Fetch a Discourse topic.
+- Convert it to markdown.
+- Create a new NotebookLM notebook from that topic content.
+- Reuse the same pipeline in separate fetch, convert, and notebook steps.
 
 ## Usage
 
