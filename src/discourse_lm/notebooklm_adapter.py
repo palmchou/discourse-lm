@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import importlib
+import os
+import shutil
 import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -28,12 +30,27 @@ class NotebookCreationResult:
 
 
 def _discover_site_packages() -> Path | None:
-    candidate_roots = []
-    explicit = Path.home() / ".local" / "share" / "uv" / "tools" / "notebooklm-py" / "lib"
-    if explicit.exists():
-        candidate_roots.append(explicit)
+    candidate_roots: list[Path] = []
+
+    env_path = os.environ.get("DISCOURSE_LM_NOTEBOOKLM_SITE_PACKAGES")
+    if env_path:
+        candidate_roots.append(Path(env_path))
+
+    notebooklm_bin = shutil.which("notebooklm")
+    if notebooklm_bin:
+        try:
+            first_line = Path(notebooklm_bin).read_text(encoding="utf-8").splitlines()[0]
+        except (OSError, UnicodeDecodeError, IndexError):
+            first_line = ""
+        if first_line.startswith("#!") and "python" in first_line:
+            interpreter = Path(first_line[2:].strip())
+            lib_root = interpreter.parent.parent / "lib"
+            if lib_root.exists():
+                candidate_roots.append(lib_root)
 
     for root in candidate_roots:
+        if root.name == "site-packages" and root.exists():
+            return root
         matches = sorted(root.glob("python*/site-packages"))
         if matches:
             return matches[-1]
@@ -55,7 +72,8 @@ def load_notebooklm_client_class():
         except Exception as exc:
             raise NotebookLMAdapterError(
                 "Unable to import notebooklm-py. Install it into the active environment "
-                "or keep the existing uv tool installation available."
+                "or make it discoverable via the `notebooklm` CLI or "
+                "`DISCOURSE_LM_NOTEBOOKLM_SITE_PACKAGES`."
             ) from exc
 
 

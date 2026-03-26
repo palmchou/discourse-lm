@@ -23,12 +23,11 @@
 
 - Python 3.11+
 - NotebookLM authentication already set up through `notebooklm login`
-- `notebooklm-py` available either in the current Python environment or in the existing uv tool install at `~/.local/share/uv/tools/notebooklm-py`
+- `notebooklm-py` available either in the current Python environment or discoverable through the `notebooklm` CLI on `PATH`
 
 ## Install
 
 ```bash
-cd /Users/palm/Projects/discourse-lm
 python3 -m pip install -e .[dev]
 ```
 
@@ -39,14 +38,16 @@ This repository includes an installable skill at `skills/discourse-lm/`.
 To use it with OpenClaw or Codex-style local skills:
 
 ```bash
-python3 -m pip install -e /Users/palm/Projects/discourse-lm
-mkdir -p ~/.codex/skills
-ln -s /Users/palm/Projects/discourse-lm/skills/discourse-lm ~/.codex/skills/discourse-lm
+python3 -m pip install -e .
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+ln -s "$(pwd)/skills/discourse-lm" "${CODEX_HOME:-$HOME/.codex}/skills/discourse-lm"
 ```
 
 If your OpenClaw setup uses a different skills directory, copy or symlink `skills/discourse-lm/` there instead.
 
 The skill uses the bundled wrapper at `skills/discourse-lm/scripts/run_discourse_lm.sh`, which prefers the checked-out repository source tree and falls back to the installed `discourse-lm` CLI.
+
+If `notebooklm-py` is installed outside the active Python environment and cannot be found through the `notebooklm` CLI, set `DISCOURSE_LM_NOTEBOOKLM_SITE_PACKAGES` to the package's `site-packages` directory before running the tool.
 
 Once installed, the skill can be used to:
 
