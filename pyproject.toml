@@ -1,0 +1,23 @@
+[project]
+name = "discourse-lm"
+version = "0.1.0"
+description = "Fetch Discourse topics, convert them to Markdown, and create NotebookLM notebooks."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = []
+
+[project.scripts]
+discourse-lm = "discourse_lm.cli:main"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
